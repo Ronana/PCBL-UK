@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 import Hero from '../components/Hero';
 import FeaturedPCs from '../components/FeaturedPCs';
@@ -9,7 +10,7 @@ import QuickConfigure from '../components/QuickConfigure';
 import PromoBanner from '../components/PromoBanner';
 import DualCTA from '../components/DualCTA';
 import CategoryLinks from '../components/CategoryLinks';
-import { PCSystem, View } from '../types';
+import { PCSystem, SiteImages, View } from '../types';
 
 interface HomePageProps {
     navigateTo: (view: View) => void;
@@ -17,13 +18,14 @@ interface HomePageProps {
     onViewProduct: (pc: PCSystem) => void;
     comparisonList: PCSystem[];
     onToggleComparison: (pc: PCSystem) => void;
+    siteImages: SiteImages;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ navigateTo, navigateToConfigurator, onViewProduct, comparisonList, onToggleComparison }) => {
+const HomePage: React.FC<HomePageProps> = ({ navigateTo, navigateToConfigurator, onViewProduct, comparisonList, onToggleComparison, siteImages }) => {
     return (
         <>
-            <Hero navigateToConfigurator={navigateToConfigurator} />
-            <QuickConfigure navigateTo={navigateTo} navigateToConfigurator={navigateToConfigurator} />
+            <Hero navigateToConfigurator={navigateToConfigurator} siteImages={siteImages} />
+            <QuickConfigure navigateTo={navigateTo} navigateToConfigurator={navigateToConfigurator} siteImages={siteImages} />
             <FeaturedPCs 
                 onViewProduct={onViewProduct}
                 comparisonList={comparisonList}
@@ -31,7 +33,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, navigateToConfigurator,
             />
             <PromoBanner navigateTo={navigateTo} />
             <WhyChooseUs />
-            <DualCTA navigateToConfigurator={navigateToConfigurator} navigateTo={navigateTo} />
+            <DualCTA navigateToConfigurator={navigateToConfigurator} navigateTo={navigateTo} siteImages={siteImages} />
             <CategoryLinks />
             <Testimonials />
         </>

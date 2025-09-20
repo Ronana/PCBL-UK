@@ -1,6 +1,7 @@
 
+
 import React, { useState, useMemo } from 'react';
-import { PCSystem, GameData } from '../types';
+import { PCSystem, GameData, SiteImages } from '../types';
 import { GAMES_DATA, FEATURED_PCS, RACING_SIM_PCS, DEAL_PCS } from '../constants';
 import PCSystemCard from '../components/PCSystemCard';
 
@@ -8,11 +9,12 @@ interface ChooseByGamePageProps {
     onViewProduct: (pc: PCSystem) => void;
     comparisonList: PCSystem[];
     onToggleComparison: (pc: PCSystem) => void;
+    siteImages: SiteImages;
 }
 
 type Resolution = '1080p' | '1440p' | '4K';
 
-const ChooseByGamePage: React.FC<ChooseByGamePageProps> = ({ onViewProduct, comparisonList, onToggleComparison }) => {
+const ChooseByGamePage: React.FC<ChooseByGamePageProps> = ({ onViewProduct, comparisonList, onToggleComparison, siteImages }) => {
     const [selectedGame, setSelectedGame] = useState<GameData | null>(null);
     const [selectedResolution, setSelectedResolution] = useState<Resolution | null>(null);
 
@@ -57,7 +59,7 @@ const ChooseByGamePage: React.FC<ChooseByGamePageProps> = ({ onViewProduct, comp
             <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {GAMES_DATA.map(game => (
                     <button key={game.id} onClick={() => handleGameSelect(game)} className="group relative block rounded-lg overflow-hidden transition-transform transform hover:scale-105">
-                        <img src={game.imageUrl} alt={game.name} className="w-full h-80 object-cover" />
+                        <img src={siteImages[game.imageKey] || ''} alt={game.name} className="w-full h-80 object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                         <div className="absolute bottom-0 left-0 p-6">
                             <h3 className="text-2xl font-bold text-white group-hover:text-brand-teal transition-colors">{game.name}</h3>

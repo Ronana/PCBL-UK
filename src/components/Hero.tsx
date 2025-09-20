@@ -1,16 +1,18 @@
 
 import React from 'react';
+import { SiteImages } from '../types';
 
 interface HeroProps {
   navigateToConfigurator: (filter?: string | null) => void;
+  siteImages: SiteImages;
 }
 
-const Hero: React.FC<HeroProps> = ({ navigateToConfigurator }) => {
+const Hero: React.FC<HeroProps> = ({ navigateToConfigurator, siteImages }) => {
   return (
     <div className="relative bg-brand-dark pt-16 pb-32 flex content-center items-center justify-center min-h-[75vh]">
       <div
         className="absolute top-0 w-full h-full bg-center bg-cover"
-        style={{ backgroundImage: "url('src/assets/MainHeroImage.png')" }}
+        style={{ backgroundImage: `url(${siteImages.hero_background || ''})` }}
       >
         <span id="blackOverlay" className="w-full h-full absolute opacity-75 bg-black"></span>
       </div>

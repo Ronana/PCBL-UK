@@ -1,12 +1,12 @@
 
-
 import React, { useRef } from 'react';
 import { PRODUCT_CAROUSEL_ITEMS } from '../constants';
-import { View } from '../types';
+import { SiteImages, View } from '../types';
 
 interface ProductCarouselProps {
     navigateTo: (view: View) => void;
     navigateToConfigurator: (filter: string | null) => void;
+    siteImages: SiteImages;
 }
 
 const Arrow: React.FC<{ direction: 'left' | 'right'; onClick: () => void }> = ({ direction, onClick }) => (
@@ -23,7 +23,7 @@ const Arrow: React.FC<{ direction: 'left' | 'right'; onClick: () => void }> = ({
     </button>
 );
 
-const QuickConfigure: React.FC<ProductCarouselProps> = ({ navigateTo, navigateToConfigurator }) => {
+const QuickConfigure: React.FC<ProductCarouselProps> = ({ navigateTo, navigateToConfigurator, siteImages }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const items = PRODUCT_CAROUSEL_ITEMS;
@@ -66,7 +66,7 @@ const QuickConfigure: React.FC<ProductCarouselProps> = ({ navigateTo, navigateTo
                             {items.map((item, index) => (
                                 <div key={index} className="snap-center w-[90vw] sm:w-[50vw] md:w-[33.33vw] lg:w-[25vw] xl:w-[20vw] flex-shrink-0 px-2">
                                     <div className={`relative h-[500px] rounded-lg overflow-hidden p-8 flex flex-col justify-end text-white bg-gray-900`} >
-                                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${item.imageUrl})`}}></div>
+                                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${siteImages[item.imageKey] || ''})`}}></div>
                                         <div className={`absolute inset-0 ${item.bgColorClass} mix-blend-multiply`}></div>
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                                         <div className="relative z-10">

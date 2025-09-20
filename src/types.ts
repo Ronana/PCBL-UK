@@ -146,22 +146,14 @@ export interface BasePCSystem {
     [key in ComponentCategoryId]?: string;
   };
   galleryImages: string[];
+  displayCategory?: string;
+  platformId?: string;
 }
 
 export interface ConfigCategory {
     id: string;
     name: string;
     systems: BasePCSystem[];
-}
-
-export interface Platform {
-  id: string;
-  name: string;
-  subtitle?: string;
-  budget: string;
-  features: string[];
-  imageUrl: string;
-  systemIds: string[];
 }
 
 export type SelectedComponents = {
@@ -210,7 +202,7 @@ export interface Address {
 export interface GameData {
   id: string;
   name: string;
-  imageUrl: string;
+  imageKey: string;
   recommendations: {
     '1080p': number[];
     '1440p': number[];
@@ -218,9 +210,27 @@ export interface GameData {
   };
 }
 
+export interface Platform {
+  id: string;
+  name: string;
+  budget: string;
+  features: string[];
+  imageKey: string;
+  type: 'gaming' | 'workstation' | 'home';
+}
+
+export interface ConfigPage {
+  id: 'home' | 'gaming' | 'workstation';
+  title: string;
+  description: string;
+  categories: ComponentCategoryId[];
+}
+
+export type SiteImages = { [key: string]: string };
+
+
 export type View = 
-  | 'home'
-  | 'configureLanding' 
+  | 'home' 
   | 'selectBase' 
   | 'about' 
   | 'productDetail'
@@ -241,7 +251,11 @@ export type View =
   | 'compare'
   | 'pcblPoints'
   | 'faq'
-  | 'chooseByGame';
+  | 'chooseByGame'
+  | 'configureLanding'
+  | 'homeOfficeConfig'
+  | 'gamingConfig'
+  | 'workstationConfig';
 
 export interface NavLink {
   name: string;

@@ -1,13 +1,15 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { RACING_SIM_PCS } from '../constants';
 import PCSystemCard from '../components/PCSystemCard';
-import { PCSystem } from '../types';
+import { PCSystem, SiteImages } from '../types';
 
 interface RacingSimPageProps {
   onViewProduct: (pc: PCSystem) => void;
   comparisonList: PCSystem[];
   onToggleComparison: (pc: PCSystem) => void;
+  siteImages: SiteImages;
 }
 
 const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -16,7 +18,7 @@ const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-const RacingSimPage: React.FC<RacingSimPageProps> = ({ onViewProduct, comparisonList, onToggleComparison }) => {
+const RacingSimPage: React.FC<RacingSimPageProps> = ({ onViewProduct, comparisonList, onToggleComparison, siteImages }) => {
     const [displayedPcs, setDisplayedPcs] = useState<PCSystem[]>(RACING_SIM_PCS);
     const [sortOption, setSortOption] = useState('default');
     const [filters, setFilters] = useState({
@@ -99,7 +101,7 @@ const RacingSimPage: React.FC<RacingSimPageProps> = ({ onViewProduct, comparison
             <div className="relative pt-32 pb-24 flex content-center items-center justify-center min-h-[60vh]">
                  <div
                     className="absolute top-0 w-full h-full bg-center bg-cover"
-                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1614294154339-1f2a8c02118f?q=80&w=2070&auto=format&fit=crop')" }}
+                    style={{ backgroundImage: `url(${siteImages.racing_hero || ''})` }}
                 >
                     <span id="blackOverlay" className="w-full h-full absolute opacity-60 bg-black"></span>
                 </div>
@@ -130,7 +132,7 @@ const RacingSimPage: React.FC<RacingSimPageProps> = ({ onViewProduct, comparison
                         </div>
                         <div>
                              <img 
-                                src="https://images.unsplash.com/photo-1628202492925-b9b5f50804a3?q=80&w=1964&auto=format&fit=crop"
+                                src={siteImages.racing_why || ''}
                                 alt="Triple monitor racing simulator setup" 
                                 className="rounded-lg shadow-2xl"
                             />

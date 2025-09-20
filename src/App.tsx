@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -24,9 +23,9 @@ import ComparePage from './pages/ComparePage';
 import PcblPointsPage from './pages/PcblPointsPage';
 import FaqPage from './pages/FaqPage';
 import ChooseByGamePage from './pages/ChooseByGamePage';
-import ConfigureLandingPage from './pages/ConfigureLandingPage';
 import ComparisonTray from './components/ComparisonTray';
-import { View, PCSystem, BasketItem, Order, SavedBuild, BasePCSystem, SelectedComponents, User, ConfigCategory, ConfiguratorSection } from './types';
+import ConfigureLandingPage from './pages/ConfigureLandingPage';
+import { View, PCSystem, BasketItem, Order, SavedBuild, BasePCSystem, SelectedComponents, User, ConfiguratorSection, SiteImages } from './types';
 import { FEATURED_PCS, DEAL_PCS, RACING_SIM_PCS, FLIGHT_SIM_PCS } from './constants';
 import { supabase } from './supabaseClient';
 
@@ -44,90 +43,19 @@ const App: React.FC = () => {
   const [savedBuilds, setSavedBuilds] = useState<SavedBuild[]>([]);
   const [buildToLoad, setBuildToLoad] = useState<SavedBuild | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
 
   // State for data fetched from Supabase
-  const [configCategories, setConfigCategories] = useState<ConfigCategory[]>([]);
+  const [allSystems, setAllSystems] = useState<BasePCSystem[]>([]);
   const [configuratorSections, setConfiguratorSections] = useState<ConfiguratorSection[]>([]);
+  const [siteImages, setSiteImages] = useState<SiteImages>({});
 
   const allPcs = useMemo(() => {
     const all = [...FEATURED_PCS, ...DEAL_PCS, ...RACING_SIM_PCS, ...FLIGHT_SIM_PCS];
     return Array.from(new Map(all.map(pc => [pc.id, pc])).values());
   }, []);
 
-  // Effect for data loading and auth state listening. Runs ONCE.
-  useEffect(() => {
-    setIsLoading(true);
-    let isMounted = true;
-
-    const fetchInitialData = async () => {
-        try {
-            // Fetch public data
-            const [categoriesResponse, sectionsResponse] = await Promise.all([
-                supabase.from('config_categories').select('*, systems:base_pc_systems(*)').order('id'),
-                supabase.from('configurator_sections').select('*, categories:component_categories(*, options:component_options(*))').order('id')
-            ]);
-
-            if (categoriesResponse.error) throw categoriesResponse.error;
-            if (sectionsResponse.error) throw sectionsResponse.error;
-            
-            if (isMounted) {
-                setConfigCategories(categoriesResponse.data as ConfigCategory[]);
-                setConfiguratorSections(sectionsResponse.data as ConfiguratorSection[]);
-            }
-
-            // Check for initial session and fetch user data if available
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user && isMounted) {
-                setUser(session.user);
-                const [buildsResponse, ordersResponse] = await Promise.all([
-                    supabase.from('builds').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }),
-                    supabase.from('orders').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
-                ]);
-                if (buildsResponse.data) setSavedBuilds(buildsResponse.data);
-                if (ordersResponse.data) setOrders(ordersResponse.data);
-            }
-        } catch (error) {
-            console.error("Error during app initialization:", error);
-        } finally {
-            if (isMounted) {
-                setIsLoading(false);
-            }
-        }
-    };
-
-    fetchInitialData();
-
-    // Set up auth listener for real-time changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        if (!isMounted) return;
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-
-        if (currentUser) {
-            // User logged in or session refreshed, refetch data
-            const [buildsResponse, ordersResponse] = await Promise.all([
-                supabase.from('builds').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
-                supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
-            ]);
-            if (isMounted) {
-                if (buildsResponse.data) setSavedBuilds(buildsResponse.data);
-                if (ordersResponse.data) setOrders(ordersResponse.data);
-            }
-        } else {
-            // User logged out
-            if (isMounted) {
-                setSavedBuilds([]);
-                setOrders([]);
-            }
-        }
-    });
-
-    return () => {
-        isMounted = false;
-        subscription?.unsubscribe();
-    };
-  }, []);
-
+  // Fix: Moved navigateTo function declaration before its usage in useEffect.
   const navigateTo = useCallback((view: View) => {
     if (view !== 'productDetail') {
       setSelectedPC(null);
@@ -136,24 +64,116 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Effect for handling routing logic based on auth state.
   useEffect(() => {
-    if (isLoading) return; // Don't run routing logic while the app is still loading initial data
+    const initializeApp = async () => {
+        if (isDataLoaded) {
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const [systemsResponse, sectionsResponse, imagesResponse] = await Promise.all([
+                supabase.from('base_pc_systems').select('*'),
+                supabase.from('configurator_sections').select('*, categories:component_categories(*, options:component_options(*))').order('id'),
+                supabase.from('site_images').select('id, url')
+            ]);
 
-    // If user is logged in and on the auth page, redirect to account
-    if (user && currentView === 'auth') {
-        navigateTo('account');
-    }
+            if (systemsResponse.error) throw systemsResponse.error;
+            const transformedSystems = systemsResponse.data.map((system: any) => ({
+                id: system.id,
+                name: system.name,
+                description: system.description,
+                features: system.features,
+                startingPrice: system.starting_price,
+                imageUrl: system.image_url,
+                brand: system.brand,
+                budget: system.budget,
+                defaultConfig: system.default_config,
+                galleryImages: system.gallery_images,
+                displayCategory: system.display_category,
+                platformId: system.platform_id,
+            }));
+            setAllSystems(transformedSystems as BasePCSystem[]);
 
-    // If user is logged out and tries to access account, redirect to auth
-    if (!user && currentView === 'account') {
-        navigateTo('auth');
-    }
-}, [user, currentView, isLoading, navigateTo]);
+            if (sectionsResponse.error) throw sectionsResponse.error;
+            const transformedSections = sectionsResponse.data.map((section: any) => ({
+                ...section,
+                categories: section.categories.map((category: any) => ({
+                    ...category,
+                    options: category.options.map((option: any) => ({
+                        ...option,
+                        imageUrl: option.image_url,
+                    })),
+                })),
+            }));
+            setConfiguratorSections(transformedSections as ConfiguratorSection[]);
+            
+            if (imagesResponse.error) throw imagesResponse.error;
+            if (imagesResponse.data) {
+                const imageMap = imagesResponse.data.reduce((acc: SiteImages, { id, url }) => {
+                    acc[id] = url;
+                    return acc;
+                }, {});
+                setSiteImages(imageMap);
+            }
+
+            setIsDataLoaded(true);
+
+        } catch (error) {
+            console.error("Failed to load data from Supabase:", error);
+        }
+    };
+    initializeApp();
+  }, [isDataLoaded]);
   
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        const [buildsResponse, ordersResponse] = await Promise.all([
+          supabase.from('builds').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+          supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
+        ]);
+
+        if (buildsResponse.data) {
+          const transformedBuilds = buildsResponse.data.map((build: any) => ({
+            id: build.id,
+            user_id: build.user_id,
+            name: build.name,
+            baseSystem: build.base_system,
+            selectedComponents: build.selected_components,
+            totalPrice: build.total_price,
+            created_at: build.created_at,
+          }));
+          setSavedBuilds(transformedBuilds as SavedBuild[]);
+        }
+        if (ordersResponse.data) setOrders(ordersResponse.data);
+
+        if (currentView === 'auth') {
+          navigateTo('account');
+        }
+      } else {
+        setSavedBuilds([]);
+        setOrders([]);
+      }
+       if (isLoading && isDataLoaded) {
+          setIsLoading(false);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [currentView, isDataLoaded, isLoading, navigateTo]);
+
   const navigateToConfigurator = useCallback((filter: string | null = null) => {
-    setConfigFilter(filter);
-    setCurrentView(filter ? 'selectBase' : 'configureLanding');
+    if (filter === null) {
+      setCurrentView('configureLanding');
+    } else {
+      setConfigFilter(filter);
+      setCurrentView('selectBase');
+    }
     window.scrollTo(0, 0);
   }, []);
 
@@ -263,13 +283,22 @@ const App: React.FC = () => {
         const { data, error } = await supabase.from('builds').insert({
             name: name,
             user_id: user.id,
-            baseSystem: buildData.baseSystem,
-            selectedComponents: buildData.selectedComponents,
-            totalPrice: buildData.totalPrice,
+            base_system: buildData.baseSystem,
+            selected_components: buildData.selectedComponents,
+            total_price: buildData.totalPrice,
         }).select().single();
 
         if (error) throw error;
-        setSavedBuilds(prevBuilds => [data as SavedBuild, ...prevBuilds]);
+         const transformedBuild = {
+            id: data.id,
+            user_id: data.user_id,
+            name: data.name,
+            baseSystem: data.base_system,
+            selectedComponents: data.selected_components,
+            totalPrice: data.total_price,
+            created_at: data.created_at,
+        };
+        setSavedBuilds(prevBuilds => [transformedBuild as SavedBuild, ...prevBuilds]);
     } catch (e) {
         console.error("Error adding document: ", e);
         alert("There was an error saving your build. Please try again.");
@@ -316,20 +345,22 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentView) {
       case 'configureLanding':
-        return <ConfigureLandingPage navigateToConfigurator={navigateToConfigurator} />;
+        return <ConfigureLandingPage navigateToConfigurator={navigateToConfigurator} siteImages={siteImages} />;
       case 'selectBase':
         return <BaseConfigSelectorPage 
+                    allSystems={allSystems}
                     onAddToBasket={addToBasket} 
                     filter={configFilter}
                     onSaveBuild={handleSaveBuild}
                     buildToLoad={buildToLoad}
                     onLoadComplete={() => setBuildToLoad(null)}
                     user={user}
-                    configCategories={configCategories}
                     configuratorSections={configuratorSections}
+                    navigateTo={navigateTo}
+                    siteImages={siteImages}
                 />;
       case 'about':
-        return <AboutUsPage navigateToConfigurator={navigateToConfigurator} />;
+        return <AboutUsPage navigateToConfigurator={navigateToConfigurator} siteImages={siteImages} />;
       case 'contact':
         return <ContactUsPage />;
       case 'privacy':
@@ -344,7 +375,6 @@ const App: React.FC = () => {
         return <AuthPage />;
       case 'account':
         if (!user) {
-          // This check is now backed up by the routing effect, but good to keep as a safeguard.
           navigateTo('auth');
           return null;
         }
@@ -391,12 +421,14 @@ const App: React.FC = () => {
                   onViewProduct={handleViewProduct} 
                   comparisonList={comparisonList} 
                   onToggleComparison={handleToggleComparison}
+                  siteImages={siteImages}
                 />;
       case 'flightSims':
         return <FlightSimPage 
                   onViewProduct={handleViewProduct} 
                   comparisonList={comparisonList} 
                   onToggleComparison={handleToggleComparison}
+                  siteImages={siteImages}
                 />;
       case 'deals':
         return <DealsPage 
@@ -428,6 +460,7 @@ const App: React.FC = () => {
                   onViewProduct={handleViewProduct}
                   comparisonList={comparisonList}
                   onToggleComparison={handleToggleComparison}
+                  siteImages={siteImages}
                 />;
       case 'home':
       default:
@@ -437,6 +470,7 @@ const App: React.FC = () => {
                     onViewProduct={handleViewProduct}
                     comparisonList={comparisonList}
                     onToggleComparison={handleToggleComparison}
+                    siteImages={siteImages}
                 />;
     }
   };

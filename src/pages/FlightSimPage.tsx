@@ -1,13 +1,15 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { FLIGHT_SIM_PCS } from '../constants';
 import PCSystemCard from '../components/PCSystemCard';
-import { PCSystem } from '../types';
+import { PCSystem, SiteImages } from '../types';
 
 interface FlightSimPageProps {
   onViewProduct: (pc: PCSystem) => void;
   comparisonList: PCSystem[];
   onToggleComparison: (pc: PCSystem) => void;
+  siteImages: SiteImages;
 }
 
 const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -16,7 +18,7 @@ const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-const FlightSimPage: React.FC<FlightSimPageProps> = ({ onViewProduct, comparisonList, onToggleComparison }) => {
+const FlightSimPage: React.FC<FlightSimPageProps> = ({ onViewProduct, comparisonList, onToggleComparison, siteImages }) => {
     const [displayedPcs, setDisplayedPcs] = useState<PCSystem[]>(FLIGHT_SIM_PCS);
     const [sortOption, setSortOption] = useState('default');
     const [filters, setFilters] = useState({
@@ -99,7 +101,7 @@ const FlightSimPage: React.FC<FlightSimPageProps> = ({ onViewProduct, comparison
             <div className="relative pt-32 pb-24 flex content-center items-center justify-center min-h-[60vh]">
                  <div
                     className="absolute top-0 w-full h-full bg-center bg-cover"
-                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1575883858914-1a28a3415843?q=80&w=2070&auto=format&fit=crop')" }}
+                    style={{ backgroundImage: `url(${siteImages.flight_hero || ''})` }}
                 >
                     <span id="blackOverlay" className="w-full h-full absolute opacity-60 bg-black"></span>
                 </div>
@@ -130,7 +132,7 @@ const FlightSimPage: React.FC<FlightSimPageProps> = ({ onViewProduct, comparison
                         </div>
                         <div>
                              <img 
-                                src="https://images.unsplash.com/photo-1628126233435-095b5401319c?q=80&w=1974&auto=format&fit=crop"
+                                src={siteImages.flight_why || ''}
                                 alt="Home cockpit for flight simulation" 
                                 className="rounded-lg shadow-2xl"
                             />

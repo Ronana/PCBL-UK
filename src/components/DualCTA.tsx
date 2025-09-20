@@ -1,14 +1,16 @@
 
 
+
 import React from 'react';
-import { View } from '../types';
+import { SiteImages, View } from '../types';
 
 interface DualCTAProps {
     navigateToConfigurator: (filter?: string | null) => void;
     navigateTo: (view: View) => void;
+    siteImages: SiteImages;
 }
 
-const DualCTA: React.FC<DualCTAProps> = ({ navigateToConfigurator, navigateTo }) => {
+const DualCTA: React.FC<DualCTAProps> = ({ navigateToConfigurator, navigateTo, siteImages }) => {
     return (
         <section className="bg-brand-dark py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +30,7 @@ const DualCTA: React.FC<DualCTAProps> = ({ navigateToConfigurator, navigateTo })
                     </div>
 
                     {/* Choose Your Game */}
-                    <div className="relative rounded-lg overflow-hidden p-12 flex flex-col items-start text-left shadow-2xl bg-cover bg-center" style={{ backgroundImage: "url('/custom-pc-2.png')" }}>
+                    <div className="relative rounded-lg overflow-hidden p-12 flex flex-col items-start text-left shadow-2xl bg-cover bg-center" style={{ backgroundImage: `url(${siteImages.cta_choose_by_game || ''})` }}>
                         <div className="absolute inset-0 bg-black opacity-60"></div>
                         <div className="relative z-10">
                             <h3 className="text-3xl font-extrabold text-white">CHOOSE YOUR FAVOURITE GAME</h3>

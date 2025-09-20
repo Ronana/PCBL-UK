@@ -1,9 +1,11 @@
 
 import React from 'react';
 import { WHY_CHOOSE_US_POINTS } from '../constants';
+import { SiteImages } from '../types';
 
 interface AboutUsPageProps {
     navigateToConfigurator: (filter?: string | null) => void;
+    siteImages: SiteImages;
 }
 
 const ValueCard: React.FC<{ title: string, description: string }> = ({ title, description }) => (
@@ -13,14 +15,14 @@ const ValueCard: React.FC<{ title: string, description: string }> = ({ title, de
     </div>
 );
 
-const AboutUsPage: React.FC<AboutUsPageProps> = ({ navigateToConfigurator }) => {
+const AboutUsPage: React.FC<AboutUsPageProps> = ({ navigateToConfigurator, siteImages }) => {
     return (
         <div className="bg-brand-dark text-white">
             {/* Hero Section */}
             <div className="relative pt-32 pb-24 flex content-center items-center justify-center">
                 <div
                     className="absolute top-0 w-full h-full bg-center bg-cover"
-                    style={{ backgroundImage: "url('/custom-pc-3.png')" }}
+                    style={{ backgroundImage: `url(${siteImages.about_hero || ''})` }}
                 >
                     <span id="blackOverlay" className="w-full h-full absolute opacity-75 bg-black"></span>
                 </div>
@@ -52,7 +54,7 @@ const AboutUsPage: React.FC<AboutUsPageProps> = ({ navigateToConfigurator }) => 
                         </div>
                         <div>
                             <img 
-                                src="/custom-pc-1.png"
+                                src={siteImages.about_story || ''}
                                 alt="PC building workshop" 
                                 className="rounded-lg shadow-2xl"
                             />

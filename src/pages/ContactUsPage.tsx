@@ -14,7 +14,7 @@ const ContactUsPage: React.FC = () => {
                     <div className="space-y-4 text-gray-300">
                         <p><strong>Email:</strong> support@pcbl.uk</p>
                         <p><strong>Phone:</strong> 01234 567 890</p>
-                        <p><strong>Address:</strong> PCBL Tech UK Ltd, Office 1256, 3 Fitzroy Place, 1/1, Sauchiehall Street, Finnieston, Glasgow Central, G3 7RH, UK</p>
+                        <p><strong>Address:</strong> 123 Tech Street, London, UK</p>
                     </div>
                 </div>
                 <div>

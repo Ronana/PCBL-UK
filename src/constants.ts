@@ -3,12 +3,7 @@ import { PCSystem, Testimonial, BasePCSystem, ConfigCategory, NavLink, Benchmark
 export const NAV_LINKS: NavLink[] = [
   {
     name: 'Configure',
-    isDropdown: true,
-    links: [
-      { name: 'Configure a Custom PC', view: 'configureLanding' },
-      { name: 'Gaming PCs', view: 'configureLanding' },
-      { name: 'Workstations', view: 'configureLanding' },
-    ]
+    view: 'configureLanding',
   },
   { name: 'Choose by Game', view: 'chooseByGame' },
   {
@@ -32,7 +27,7 @@ export const PRODUCT_CAROUSEL_ITEMS = [
     buttonText: 'View Pre-builts',
     actionType: 'view',
     actionTarget: 'deals',
-    imageUrl: '/custom-pc-1.png',
+    imageKey: 'quick_config_prebuilt',
     bgColorClass: 'bg-purple-900/50',
   },
   {
@@ -40,8 +35,8 @@ export const PRODUCT_CAROUSEL_ITEMS = [
     description: 'We build high-performance gaming PCs. It\'s time to invest in excellence.',
     buttonText: 'View Gaming PCs',
     actionType: 'config',
-    actionTarget: 'gaming-pro',
-    imageUrl: '/custom-pc-2.png',
+    actionTarget: 'gaming',
+    imageKey: 'quick_config_gaming',
     bgColorClass: 'bg-gray-800/50',
   },
   {
@@ -50,7 +45,7 @@ export const PRODUCT_CAROUSEL_ITEMS = [
     buttonText: 'View Flight Sim PCs',
     actionType: 'view',
     actionTarget: 'flightSims',
-    imageUrl: 'https://images.unsplash.com/photo-1575883858914-1a28a3415843?q=80&w=2070&auto=format&fit=crop',
+    imageKey: 'quick_config_flight',
     bgColorClass: 'bg-sky-900/50',
   },
   {
@@ -59,7 +54,7 @@ export const PRODUCT_CAROUSEL_ITEMS = [
     buttonText: 'Build Your PC',
     actionType: 'config',
     actionTarget: null,
-    imageUrl: 'https://img.freepik.com/free-photo/view-computer-motherboard_23-2151167421.jpg',
+    imageKey: 'quick_config_build_pc',
     bgColorClass: 'bg-gray-800/50',
   },
    {
@@ -68,7 +63,7 @@ export const PRODUCT_CAROUSEL_ITEMS = [
     buttonText: 'Best Gaming PCs',
     actionType: 'view',
     actionTarget: 'chooseByGame',
-    imageUrl: 'https://image.api.playstation.com/vulcan/ap/rnd/202308/2313/e9a288279b3713f28a38a11394a1796d193d25d97d33d964.png',
+    imageKey: 'quick_config_help_choose',
     bgColorClass: 'bg-orange-900/50',
   },
    {
@@ -77,7 +72,7 @@ export const PRODUCT_CAROUSEL_ITEMS = [
     buttonText: 'View Racing Sims',
     actionType: 'view',
     actionTarget: 'racingSims',
-    imageUrl: 'https://images.unsplash.com/photo-1614294154339-1f2a8c02118f?q=80&w=2070&auto=format&fit=crop',
+    imageKey: 'quick_config_racing',
     bgColorClass: 'bg-red-900/50',
   },
 ];
@@ -470,90 +465,6 @@ export const FLIGHT_SIM_PCS: PCSystem[] = [
     },
 ];
 
-export const GAMING_PLATFORMS: Platform[] = [
-    {
-        id: 'amd-am4-ddr4',
-        name: 'AMD® RYZEN AM4 COMPUTERS',
-        budget: 'MY BUDGET IS £420 - £4,000',
-        features: [
-            'AMD A520 & B550 Chipsets. Socket AM4',
-            'Supporting 7nm AMD Ryzen™ 5000 Series Processors',
-            'Supports DDR4 memory up to 3600Mhz',
-            'Unrivaled technology for exceptional performance!',
-        ],
-        imageUrl: 'src/assets/platforms/amd-ddr4.png',
-        systemIds: ['amd-essential-gaming'],
-    },
-    {
-        id: 'intel-z790-ddr5',
-        name: 'INTEL® Z790 DDR5 TOP SPEC COMPUTERS',
-        budget: 'MY BUDGET IS £460 - £3,000',
-        features: [
-            'Intel® Z790 Chipset & socket 1700.',
-            '12ᵗʰ & 14ᵗʰ generation Intel® Core™ Processors.',
-            'For serious multitaskers, gamers or multimedia enthusiasts.',
-            'Choice of the latest DDR5 memory & up to 58 HSIO Lanes for powerful performance.',
-        ],
-        imageUrl: 'src/assets/platforms/intel-ddr5.png',
-        systemIds: ['intel-core-gaming-pc'],
-    },
-     {
-        id: 'amd-am5-ddr5',
-        name: 'AMD® RYZEN AM5 COMPUTERS',
-        budget: 'MY BUDGET IS £530 - £4,000',
-        features: [
-            'AMD A620, B650 & X670 Chipsets. Socket AM5',
-            'Supporting AMD Ryzen™ 7000 & 9000 Series Processors',
-            'Supports DDR5 memory up to 8000Mhz',
-            'For serious multitaskers, gamers or multimedia enthusiasts.',
-        ],
-        imageUrl: 'src/assets/platforms/amd-ddr5.png',
-        systemIds: ['amd-ryzen-gaming-pc'],
-    },
-    {
-        id: 'intel-z790-ultra-ddr5',
-        name: 'INTEL® CORE ULTRA & Z890 CHIPSET',
-        budget: 'MY BUDGET IS £540 - £3,000',
-        features: [
-            'Intel® Z890 Chipset & Socket 1851',
-            'Intel® Core™ Ultra Processors (Series 2)',
-            'Offering Wi-Fi 7, USB4 and latest M.2 support (at least 1x PCIe 5.0 port)',
-            'Ready for Advanced AI, designed for the future of AI Computing',
-        ],
-        imageUrl: 'src/assets/platforms/intel-ddr5-ultra.png',
-        systemIds: [], // NOTE: No systems for this yet, it's future-facing
-    },
-];
-
-export const WORKSTATION_PLATFORMS: Platform[] = [
-    {
-        id: 'intel-z790-ws',
-        name: 'INTEL® Z790 WORKSTATION',
-        budget: 'MY BUDGET IS £550 - £10,000',
-        features: [
-            'Intel® Z790 & W680 Chipset',
-            '13ᵗʰ & 14ᵗʰ generation Intel® Core™ Processors.',
-            'Professional W680 & ProArt Motherboards designed for AI Training, Deep Learning, Animation 3D Rendering and Media Production'
-        ],
-        imageUrl: 'src/assets/platforms/intel-z790-ws.png',
-        systemIds: ['intel-workstation'],
-    },
-     {
-        id: 'amd-ryzen-ws',
-        name: 'AMD RYZEN WORKSTATION COMPUTERS',
-        budget: 'MY BUDGET IS £650 - £10,000',
-        features: [
-            'AMD B650 & X670 Chipsets. Socket AM5',
-            'Choice of AMD Radeon Pro™ & NVIDIA RTX Professional ®.',
-            'Ideal for CAD engineers & Digital Content Creators.',
-            'Supporting the AMD Ryzen™ Processors.',
-        ],
-        imageUrl: 'src/assets/platforms/amd-x670-ws.png',
-        systemIds: ['amd-workstation'],
-    },
-];
-
-
 export const WHY_CHOOSE_US_POINTS = [
     {
         title: 'Expert Craftsmanship',
@@ -598,7 +509,7 @@ export const GAMES_DATA: GameData[] = [
     {
         id: 'cyberpunk',
         name: 'Cyberpunk 2077',
-        imageUrl: 'https://image.api.playstation.com/vulcan/ap/rnd/202111/3013/cKZ4admmHf2C93delTsmHrL1.jpg',
+        imageKey: 'game_cyberpunk',
         recommendations: {
             '1080p': [2, 5],
             '1440p': [3, 6, 101],
@@ -608,7 +519,7 @@ export const GAMES_DATA: GameData[] = [
     {
         id: 'cod',
         name: 'Call of Duty',
-        imageUrl: 'https://images.blz-contentstack.com/v3/assets/blt9c12f249ac15c7ec/blt822b39512634f8e5/6528416a694cc6f4f5669b3f/COD_MW3_Keyart_Vert_Slate.jpg',
+        imageKey: 'game_cod',
         recommendations: {
             '1080p': [5, 2],
             '1440p': [6, 3, 102],
@@ -618,7 +529,7 @@ export const GAMES_DATA: GameData[] = [
     {
         id: 'helldivers2',
         name: 'Helldivers 2',
-        imageUrl: 'https://image.api.playstation.com/vulcan/ap/rnd/202308/2313/e9a288279b3713f28a38a11394a1796d193d25d97d33d964.png',
+        imageKey: 'game_helldivers2',
         recommendations: {
             '1080p': [2, 101],
             '1440p': [3, 6],
@@ -628,7 +539,7 @@ export const GAMES_DATA: GameData[] = [
     {
         id: 'valorant',
         name: 'Valorant',
-        imageUrl: 'https://cdn1.epicgames.com/offer/cbd5b3d310a54b12bf3fe8c41994174f/VAL_2560x1440-2560x1440-2c70d4753063f273b0693a4661a8779b.jpg',
+        imageKey: 'game_valorant',
         recommendations: {
             '1080p': [5, 2],
             '1440p': [6, 3],
@@ -638,7 +549,7 @@ export const GAMES_DATA: GameData[] = [
     {
         id: 'iracing',
         name: 'iRacing',
-        imageUrl: 'https://images.squarespace-cdn.com/content/v1/5e5f3f0133276c112643a683/1614271810141-92XWW6E2BF3Q8T1940E8/iRacing.jpg',
+        imageKey: 'game_iracing',
         recommendations: {
             '1080p': [5],
             '1440p': [6],
@@ -648,7 +559,7 @@ export const GAMES_DATA: GameData[] = [
     {
         id: 'starfield',
         name: 'Starfield',
-        imageUrl: 'https://cdn.akamai.steamstatic.com/steam/apps/1716740/capsule_616x353.jpg?t=1700070383',
+        imageKey: 'game_starfield',
         recommendations: {
             '1080p': [2, 3],
             '1440p': [1, 6],
@@ -682,3 +593,83 @@ export const FOOTER_LINKS = {
       { name: 'My Account', view: 'account' as const },
     ],
 };
+
+export const PLATFORMS: Platform[] = [
+    {
+        id: 'amd-am4',
+        name: 'AMD® RYZEN AM4 COMPUTERS',
+        budget: 'MY BUDGET IS £420 - £4,000',
+        features: [
+            'AMD A520 & B550 Chipsets. Socket AM4',
+            'Supporting 7nm AMD Ryzen™ 5000 Series Processors',
+            'Supports DDR4 memory up to 3600MHz',
+            'Unrivaled technology for exceptional performance!',
+        ],
+        imageKey: 'platform_amd_am4',
+        type: 'gaming',
+    },
+    {
+        id: 'intel-z790-ddr5',
+        name: 'INTEL® Z790 DDR5 TOP SPEC COMPUTERS',
+        budget: 'MY BUDGET IS £460 - £3,000',
+        features: [
+            'Intel® Z790 Chipset & Socket 1700.',
+            '12th & 14th generation Intel® Core™ Processors.',
+            'For serious multitaskers, gamers or multimedia enthusiasts.',
+            'Choice of the latest DDR5 memory & up to 58 HSIO Lanes for powerful performance.',
+        ],
+        imageKey: 'platform_intel_z790_ddr5',
+        type: 'gaming',
+    },
+    {
+        id: 'amd-am5',
+        name: 'AMD® RYZEN AM5 COMPUTERS',
+        budget: 'MY BUDGET IS £530 - £4,000',
+        features: [
+            'AMD A620, B650 & X670 Chipsets. Socket AM5',
+            'Supporting AMD Ryzen™ 7000 & 9000 Series Processors',
+            'Supports DDR5 memory up to 8000MHz',
+            'For serious multitaskers, gamers or multimedia enthusiasts.',
+        ],
+        imageKey: 'platform_amd_am5',
+        type: 'gaming',
+    },
+    {
+        id: 'intel-z890',
+        name: 'INTEL® CORE ULTRA & Z890 CHIPSET',
+        budget: 'MY BUDGET IS £540 - £3,000',
+        features: [
+            'Intel® Z890 Chipset & Socket 1851',
+            'Intel® Core™ Ultra Processors (Series 2)',
+            'Offering Wi-Fi 7, USB4 and latest M.2 support (at least 1x PCIe 5.0 port)',
+            'Ready for Advanced AI, designed for the future of AI Computing',
+        ],
+        imageKey: 'platform_intel_z890',
+        type: 'gaming',
+    },
+    {
+        id: 'intel-z790-ws',
+        name: 'INTEL® Z790 WORKSTATION',
+        budget: 'MY BUDGET IS £550 - £10,000',
+        features: [
+            'Intel® Z790 & W680 Chipset',
+            '13th & 14th generation Intel® Core™ Processors.',
+            'Professional W680 & ProArt Motherboards designed for AI Training, Deep Learning, Animation 3D Rendering and Media Production',
+        ],
+        imageKey: 'platform_intel_z790_ws',
+        type: 'workstation',
+    },
+    {
+        id: 'amd-ws',
+        name: 'AMD RYZEN WORKSTATION COMPUTERS',
+        budget: 'MY BUDGET IS £650 - £10,000',
+        features: [
+            'AMD B650 & X670 Chipsets. Socket AM5',
+            'Choice of AMD Radeon Pro™ & NVIDIA RTX Professional ®.',
+            'Ideal for CAD engineers & Digital Content Creators.',
+            'Supporting the latest AMD Ryzen™ Processors.',
+        ],
+        imageKey: 'platform_amd_ws',
+        type: 'workstation',
+    }
+];
