@@ -1,12 +1,12 @@
-
 import React from 'react';
-import { View } from '../types';
+import { User, View } from '../types';
 
 interface PcblPointsPageProps {
+    user: User | null;
     navigateToConfigurator: (filter?: string | null) => void;
 }
 
-const PcblPointsPage: React.FC<PcblPointsPageProps> = ({ navigateToConfigurator }) => {
+const PcblPointsPage: React.FC<PcblPointsPageProps> = ({ user, navigateToConfigurator }) => {
     // Icons for the points section
     const GiftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-brand-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>;
     const PoundIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-brand-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 9a2 2 0 10-4 0v5a2 2 0 01-2 2h6m-6-4h4m8 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
@@ -34,8 +34,22 @@ const PcblPointsPage: React.FC<PcblPointsPageProps> = ({ navigateToConfigurator 
                 </div>
             </div>
 
+            {/* User's Points Balance */}
+            {user && (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+                    <div className="max-w-2xl mx-auto bg-brand-dark border border-brand-purple rounded-lg shadow-2xl p-8 text-center">
+                        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Your Current Balance</h2>
+                        <p className="mt-2 text-6xl font-black text-brand-teal">
+                            {user.user_metadata.pcbl_points || 0}
+                        </p>
+                        <p className="text-gray-300 mt-1">PCBL Points</p>
+                    </div>
+                </div>
+            )}
+
+
             {/* Main Content */}
-            <section className="py-20 px-4 sm:px-6 lg:px-8">
+            <section className="pt-20 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     {/* How to Earn */}
                     <div className="text-center">

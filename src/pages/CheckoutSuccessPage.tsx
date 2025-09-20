@@ -17,7 +17,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ order, naviga
                     </svg>
                     <h1 className="mt-4 text-4xl font-extrabold text-white">Thank you for your order!</h1>
                     <p className="mt-4 text-lg text-gray-400">
-                        Your order has been placed successfully. A confirmation email has been sent to <span className="font-semibold text-brand-teal">{order.shippingAddress.email}</span>.
+                        Your order has been placed successfully. A confirmation email has been sent to <span className="font-semibold text-brand-teal">{order.shipping_address.email}</span>.
                     </p>
                     <div className="mt-8 text-left border-t border-gray-700 pt-8">
                          <h2 className="text-xl font-bold text-white mb-4">Order Summary - {order.id}</h2>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { auth } from '../firebaseConfig';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { supabase } from '../supabaseClient';
 
 interface SignInFormProps {
     onSubmit: (e: React.FormEvent) => void;
@@ -73,19 +72,37 @@ const AuthPage: React.FC = () => {
     const [name, setName] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [awaitingVerification, setAwaitingVerification] = useState(false);
 
-    const handleFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleFormSubmit = async () => {
         setIsLoading(true);
         setError(null);
         
         try {
             if (activeTab === 'signin') {
-                await signInWithEmailAndPassword(auth, email, password);
-                // The onAuthStateChanged listener in App.tsx will handle navigation
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                // The onAuthStateChange listener in App.tsx will handle navigation
             } else {
-                await createUserWithEmailAndPassword(auth, email, password);
-                // The onAuthStateChanged listener in App.tsx will handle navigation
+                const { data, error } = await supabase.auth.signUp({ 
+                    email, 
+                    password,
+                    options: {
+                        data: {
+                            full_name: name,
+                            pcbl_points: 151, // Welcome bonus
+                            referrals_made: 3,
+                            referrals_successful: 1,
+                            referral_points_earned: 500,
+                        }
+                    }
+                });
+                if (error) throw error;
+                
+                // Check if user is created but needs verification
+                if (data.user && !data.session) {
+                    setAwaitingVerification(true);
+                }
             }
         } catch (err: any) {
             setError(err.message);
@@ -109,6 +126,29 @@ const AuthPage: React.FC = () => {
         setError(null);
     }
 
+    if (awaitingVerification) {
+        return (
+            <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-md w-full space-y-6 bg-brand-light-dark p-10 rounded-lg shadow-2xl text-center">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <svg className="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-extrabold text-white">
+                        Check your inbox!
+                    </h2>
+                    <p className="text-gray-300">
+                        A verification link has been sent to <span className="font-bold text-brand-teal">{email}</span>.
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                        Please click the link in the email to complete your registration.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-brand-light-dark p-10 rounded-lg shadow-2xl">
@@ -130,7 +170,10 @@ const AuthPage: React.FC = () => {
                 <div className="mt-8">
                     {activeTab === 'signin' ? (
                         <SignInForm 
-                            onSubmit={handleFormSubmit}
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                handleFormSubmit();
+                            }}
                             email={email}
                             setEmail={setEmail}
                             password={password}
@@ -139,7 +182,10 @@ const AuthPage: React.FC = () => {
                         />
                     ) : (
                         <SignUpForm 
-                             onSubmit={handleFormSubmit}
+                             onSubmit={(e) => {
+                                e.preventDefault();
+                                handleFormSubmit();
+                            }}
                              name={name}
                              setName={setName}
                              email={email}

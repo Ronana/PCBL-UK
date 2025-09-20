@@ -1,4 +1,5 @@
 
+
 import React, { useRef } from 'react';
 import { PRODUCT_CAROUSEL_ITEMS } from '../constants';
 import { View } from '../types';

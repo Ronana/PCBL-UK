@@ -1,4 +1,4 @@
-import type { User } from 'firebase/auth';
+import type { User } from '@supabase/supabase-js';
 
 export interface Review {
   id: number;
@@ -154,6 +154,16 @@ export interface ConfigCategory {
     systems: BasePCSystem[];
 }
 
+export interface Platform {
+  id: string;
+  name: string;
+  subtitle?: string;
+  budget: string;
+  features: string[];
+  imageUrl: string;
+  systemIds: string[];
+}
+
 export type SelectedComponents = {
     [key in ComponentCategoryId]?: ComponentOption | null;
 };
@@ -168,23 +178,34 @@ export interface BasketItem {
 
 export interface Order {
   id: string;
-  userId: string;
+  user_id: string;
   items: BasketItem[];
   total: number;
-  shippingAddress: any; // Using 'any' for simplicity in this example
-  date: string;
-  createdAt?: any;
+  shipping_address: any;
+  created_at: string;
 }
 
 export interface SavedBuild {
   id: string;
-  userId: string;
+  user_id: string;
   name: string;
   baseSystem: BasePCSystem;
   selectedComponents: SelectedComponents;
   totalPrice: number;
-  createdAt: string;
+  created_at: string;
 }
+
+export interface Address {
+  id: string;
+  user_id: string;
+  full_name: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  postcode: string;
+  is_default: boolean;
+}
+
 
 export interface GameData {
   id: string;
@@ -198,7 +219,8 @@ export interface GameData {
 }
 
 export type View = 
-  | 'home' 
+  | 'home'
+  | 'configureLanding' 
   | 'selectBase' 
   | 'about' 
   | 'productDetail'

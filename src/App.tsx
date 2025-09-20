@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -23,12 +24,11 @@ import ComparePage from './pages/ComparePage';
 import PcblPointsPage from './pages/PcblPointsPage';
 import FaqPage from './pages/FaqPage';
 import ChooseByGamePage from './pages/ChooseByGamePage';
+import ConfigureLandingPage from './pages/ConfigureLandingPage';
 import ComparisonTray from './components/ComparisonTray';
-import { View, PCSystem, BasketItem, Order, SavedBuild, BasePCSystem, SelectedComponents, User } from './types';
+import { View, PCSystem, BasketItem, Order, SavedBuild, BasePCSystem, SelectedComponents, User, ConfigCategory, ConfiguratorSection } from './types';
 import { FEATURED_PCS, DEAL_PCS, RACING_SIM_PCS, FLIGHT_SIM_PCS } from './constants';
-import { auth, db } from './firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs, addDoc, doc, deleteDoc, updateDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import { supabase } from './supabaseClient';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('home');
@@ -45,62 +45,117 @@ const App: React.FC = () => {
   const [buildToLoad, setBuildToLoad] = useState<SavedBuild | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // State for data fetched from Supabase
+  const [configCategories, setConfigCategories] = useState<ConfigCategory[]>([]);
+  const [configuratorSections, setConfiguratorSections] = useState<ConfiguratorSection[]>([]);
+
   const allPcs = useMemo(() => {
     const all = [...FEATURED_PCS, ...DEAL_PCS, ...RACING_SIM_PCS, ...FLIGHT_SIM_PCS];
     return Array.from(new Map(all.map(pc => [pc.id, pc])).values());
   }, []);
 
+  // Effect for data loading and auth state listening. Runs ONCE.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        // User is signed in, fetch their data
-        const buildsQuery = query(collection(db, "builds"), where("userId", "==", currentUser.uid));
-        const buildsSnapshot = await getDocs(buildsQuery);
-        const builds = buildsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        } as SavedBuild));
-        setSavedBuilds(builds);
-        
-        const ordersQuery = query(collection(db, "orders"), where("userId", "==", currentUser.uid), orderBy("createdAt", "desc"));
-        const ordersSnapshot = await getDocs(ordersQuery);
-        const fetchedOrders = ordersSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        } as Order));
-        setOrders(fetchedOrders);
-        
-        if(currentView === 'auth') {
-          navigateTo('account');
+    setIsLoading(true);
+    let isMounted = true;
+
+    const fetchInitialData = async () => {
+        try {
+            // Fetch public data
+            const [categoriesResponse, sectionsResponse] = await Promise.all([
+                supabase.from('config_categories').select('*, systems:base_pc_systems(*)').order('id'),
+                supabase.from('configurator_sections').select('*, categories:component_categories(*, options:component_options(*))').order('id')
+            ]);
+
+            if (categoriesResponse.error) throw categoriesResponse.error;
+            if (sectionsResponse.error) throw sectionsResponse.error;
+            
+            if (isMounted) {
+                setConfigCategories(categoriesResponse.data as ConfigCategory[]);
+                setConfiguratorSections(sectionsResponse.data as ConfiguratorSection[]);
+            }
+
+            // Check for initial session and fetch user data if available
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user && isMounted) {
+                setUser(session.user);
+                const [buildsResponse, ordersResponse] = await Promise.all([
+                    supabase.from('builds').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }),
+                    supabase.from('orders').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
+                ]);
+                if (buildsResponse.data) setSavedBuilds(buildsResponse.data);
+                if (ordersResponse.data) setOrders(ordersResponse.data);
+            }
+        } catch (error) {
+            console.error("Error during app initialization:", error);
+        } finally {
+            if (isMounted) {
+                setIsLoading(false);
+            }
         }
+    };
 
-      } else {
-        // User is signed out
-        setSavedBuilds([]);
-        setOrders([]);
-      }
-      setIsLoading(false);
+    fetchInitialData();
+
+    // Set up auth listener for real-time changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (!isMounted) return;
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+
+        if (currentUser) {
+            // User logged in or session refreshed, refetch data
+            const [buildsResponse, ordersResponse] = await Promise.all([
+                supabase.from('builds').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+                supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
+            ]);
+            if (isMounted) {
+                if (buildsResponse.data) setSavedBuilds(buildsResponse.data);
+                if (ordersResponse.data) setOrders(ordersResponse.data);
+            }
+        } else {
+            // User logged out
+            if (isMounted) {
+                setSavedBuilds([]);
+                setOrders([]);
+            }
+        }
     });
-    
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [currentView]);
 
+    return () => {
+        isMounted = false;
+        subscription?.unsubscribe();
+    };
+  }, []);
 
-  const navigateTo = (view: View) => {
+  const navigateTo = useCallback((view: View) => {
     if (view !== 'productDetail') {
       setSelectedPC(null);
     }
     setCurrentView(view);
     window.scrollTo(0, 0);
-  };
+  }, []);
+
+  // Effect for handling routing logic based on auth state.
+  useEffect(() => {
+    if (isLoading) return; // Don't run routing logic while the app is still loading initial data
+
+    // If user is logged in and on the auth page, redirect to account
+    if (user && currentView === 'auth') {
+        navigateTo('account');
+    }
+
+    // If user is logged out and tries to access account, redirect to auth
+    if (!user && currentView === 'account') {
+        navigateTo('auth');
+    }
+}, [user, currentView, isLoading, navigateTo]);
   
-  const navigateToConfigurator = (filter: string | null = null) => {
+  const navigateToConfigurator = useCallback((filter: string | null = null) => {
     setConfigFilter(filter);
-    setCurrentView('selectBase');
+    setCurrentView(filter ? 'selectBase' : 'configureLanding');
     window.scrollTo(0, 0);
-  };
+  }, []);
 
   const handleViewProduct = (pc: PCSystem) => {
     setSelectedPC(pc);
@@ -136,26 +191,17 @@ const App: React.FC = () => {
     const total = basketItems.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0) + (basketItems.length > 0 ? 9.00 : 0);
     
     const newOrderData = {
-        userId: user.uid,
+        user_id: user.id,
         items: basketItems,
         total: total,
-        shippingAddress: shippingDetails,
-        date: new Date().toLocaleDateString('en-GB'),
-        createdAt: serverTimestamp(),
+        shipping_address: shippingDetails,
     };
 
     try {
-        const docRef = await addDoc(collection(db, "orders"), newOrderData);
-        const finalOrder: Order = {
-            id: docRef.id,
-            userId: user.uid,
-            items: basketItems,
-            total: total,
-            shippingAddress: shippingDetails,
-            date: newOrderData.date,
-            createdAt: new Date()
-        };
-
+        const { data, error } = await supabase.from('orders').insert(newOrderData).select().single();
+        if (error) throw error;
+        
+        const finalOrder = data as Order;
         setLatestOrder(finalOrder);
         setOrders(prevOrders => [finalOrder, ...prevOrders]);
         setBasketItems([]);
@@ -214,20 +260,16 @@ const App: React.FC = () => {
         return;
     }
     try {
-        const docRef = await addDoc(collection(db, "builds"), {
+        const { data, error } = await supabase.from('builds').insert({
             name: name,
-            userId: user.uid,
-            ...buildData,
-            createdAt: new Date().toISOString(),
-        });
-        const newBuild: SavedBuild = {
-            id: docRef.id,
-            name: name,
-            userId: user.uid,
-            ...buildData,
-            createdAt: new Date().toLocaleDateString('en-GB'),
-        };
-        setSavedBuilds(prevBuilds => [newBuild, ...prevBuilds]);
+            user_id: user.id,
+            baseSystem: buildData.baseSystem,
+            selectedComponents: buildData.selectedComponents,
+            totalPrice: buildData.totalPrice,
+        }).select().single();
+
+        if (error) throw error;
+        setSavedBuilds(prevBuilds => [data as SavedBuild, ...prevBuilds]);
     } catch (e) {
         console.error("Error adding document: ", e);
         alert("There was an error saving your build. Please try again.");
@@ -236,7 +278,8 @@ const App: React.FC = () => {
 
   const handleDeleteBuild = async (buildId: string) => {
     try {
-        await deleteDoc(doc(db, "builds", buildId));
+        const { error } = await supabase.from('builds').delete().match({ id: buildId });
+        if (error) throw error;
         setSavedBuilds(prevBuilds => prevBuilds.filter(build => build.id !== buildId));
     } catch (e) {
         console.error("Error deleting document: ", e);
@@ -246,7 +289,8 @@ const App: React.FC = () => {
 
   const handleRenameBuild = async (buildId: string, newName: string) => {
     try {
-        await updateDoc(doc(db, "builds", buildId), { name: newName });
+        const { error } = await supabase.from('builds').update({ name: newName }).match({ id: buildId });
+        if (error) throw error;
         setSavedBuilds(prevBuilds => prevBuilds.map(build =>
             build.id === buildId ? { ...build, name: newName } : build
         ));
@@ -271,6 +315,8 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (currentView) {
+      case 'configureLanding':
+        return <ConfigureLandingPage navigateToConfigurator={navigateToConfigurator} />;
       case 'selectBase':
         return <BaseConfigSelectorPage 
                     onAddToBasket={addToBasket} 
@@ -279,6 +325,8 @@ const App: React.FC = () => {
                     buildToLoad={buildToLoad}
                     onLoadComplete={() => setBuildToLoad(null)}
                     user={user}
+                    configCategories={configCategories}
+                    configuratorSections={configuratorSections}
                 />;
       case 'about':
         return <AboutUsPage navigateToConfigurator={navigateToConfigurator} />;
@@ -296,6 +344,7 @@ const App: React.FC = () => {
         return <AuthPage />;
       case 'account':
         if (!user) {
+          // This check is now backed up by the routing effect, but good to keep as a safeguard.
           navigateTo('auth');
           return null;
         }
@@ -371,7 +420,7 @@ const App: React.FC = () => {
                   navigateTo={navigateTo}
                 />;
       case 'pcblPoints':
-        return <PcblPointsPage navigateToConfigurator={navigateToConfigurator} />;
+        return <PcblPointsPage user={user} navigateToConfigurator={navigateToConfigurator} />;
       case 'faq':
         return <FaqPage />;
       case 'chooseByGame':

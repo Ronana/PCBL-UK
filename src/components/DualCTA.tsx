@@ -19,7 +19,7 @@ const DualCTA: React.FC<DualCTAProps> = ({ navigateToConfigurator, navigateTo })
                             <h3 className="text-3xl font-extrabold text-white">JARGON FREE CONFIGURATOR</h3>
                             <p className="mt-4 text-gray-400">Create your ideal computer without any confusion.</p>
                             <button 
-                                onClick={() => navigateToConfigurator(null)}
+                                onClick={() => navigateToConfigurator()}
                                 className="mt-8 bg-brand-dark text-white font-bold py-3 px-6 rounded-md border border-gray-600 hover:bg-brand-purple hover:border-brand-purple transition-all duration-300"
                             >
                                 Learn More

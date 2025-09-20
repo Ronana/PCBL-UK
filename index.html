@@ -5,25 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PCBL UK - Custom Built PCs</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'brand-purple': '#6230dd',
-              'brand-teal': '#30c5c3',
-              'brand-dark': '#121223',
-              'brand-light-dark': '#1a1a38',
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-          },
-        },
-      }
-    </script>
-    <link rel="stylesheet" href="/styles.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -31,18 +13,21 @@
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
-    "firebase/": "https://aistudiocdn.com/firebase@^12.2.1/"
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.2.1/",
+    "vite": "https://aistudiocdn.com/vite@^7.1.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.2",
+    "path": "https://aistudiocdn.com/path@^0.12.7",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@2.57.4/dist/module/index.js"
   }
 }
 </script>
+<link rel="stylesheet" href="/src/styles.css">
+<link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-brand-dark text-gray-200">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+    <script type="module" src="/src/index.tsx"></script>
+</body>
 </html>

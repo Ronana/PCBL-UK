@@ -10,7 +10,7 @@ const Hero: React.FC<HeroProps> = ({ navigateToConfigurator }) => {
     <div className="relative bg-brand-dark pt-16 pb-32 flex content-center items-center justify-center min-h-[75vh]">
       <div
         className="absolute top-0 w-full h-full bg-center bg-cover"
-        style={{ backgroundImage: "url('/custom-pc-1.png')" }}
+        style={{ backgroundImage: "url('src/assets/MainHeroImage.png')" }}
       >
         <span id="blackOverlay" className="w-full h-full absolute opacity-75 bg-black"></span>
       </div>
@@ -26,7 +26,7 @@ const Hero: React.FC<HeroProps> = ({ navigateToConfigurator }) => {
               </p>
               <div className="mt-12">
                 <button
-                  onClick={() => navigateToConfigurator(null)}
+                  onClick={() => navigateToConfigurator()}
                   className="bg-brand-purple text-white text-lg font-bold py-4 px-8 rounded-lg hover:bg-opacity-80 transition-all duration-300 shadow-xl shadow-brand-purple/40 transform hover:scale-105"
                 >
                   Configure Your Dream PC
